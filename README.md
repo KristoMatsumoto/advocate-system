@@ -1,24 +1,45 @@
-# README
+# ADVOCATE SYSTEM CONTROLE
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+---
 
-Things you may want to cover:
+## Technology
 
-* Ruby version
+- Ruby **>=3.4**
+- Backend: Ruby on Rail **>= 7.1**
+- Frontend: React
+- DB: PostgreSQL
 
-* System dependencies
+---
 
-* Configuration
+## Start project 
 
-* Database creation
+### Backend
+Install the necessary gems: `bundle install` || `bundle i`
+Create database (one time): `rails db:create` or `rake db:create`
+Migrate database: `rails db:migrate` or `rake db:migrate`
+And start server: `rails s`
 
-* Database initialization
+```
+cd api
+bundle install
+rails db:migrate
+rails s
+```
 
-* How to run the test suite
+### Frontend
+Install the necessary gems: `npm install` || `npm i`
+Start server: `rails s`
 
-* Services (job queues, cache servers, search engines, etc.)
+```
+cd frontend
+npm install
+npm run dev
+```
 
-* Deployment instructions
+---
 
-* ...
+### Created by:
+- **Miranchuk** Krystsina
+
+The project was created by student of the University of Lodz as a diploma project
+**Start working**: June 2025
