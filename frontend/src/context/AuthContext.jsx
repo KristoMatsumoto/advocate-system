@@ -12,17 +12,19 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('token');
     setUser(null);
+    setLoading(false);
     navigate('/login');
   }
 
   const login = (token, user) => {
     localStorage.setItem('token', token);
     setUser(user);
+    setLoading(false);
     navigate("/");
   }
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token'); 
     if (!token) {
       logout();
       return;
@@ -33,7 +35,7 @@ export const AuthProvider = ({ children }) => {
         setUser(res.data.user);
         setLoading(false);
       })
-    .catch(() => { logout(); })
+    .catch(() => { console.error("Failed to fetch current user:", error); logout(); })
   }, [])
 
   return (

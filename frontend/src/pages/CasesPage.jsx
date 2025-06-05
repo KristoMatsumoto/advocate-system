@@ -1,9 +1,8 @@
-// pages/CasesPage.jsx
 import { useEffect, useState } from 'react';
+import { Box, Button, TextField, Typography, Pagination, Grid, Modal } from '@mui/material';
 import api from '../api/axios';
 import CaseForm from '../components/CaseForm';
 import CaseItem from '../components/CaseItem';
-import CaseModal from '../components/CaseModal'
 
 export default function CasesPage() {
   const [cases, setCases] = useState([]);
@@ -11,6 +10,7 @@ export default function CasesPage() {
   const [page, setPage] = useState(1);
   const [perPage] = useState(5);
   const [meta, setMeta] = useState({ total_pages: 1 });
+  const [formOpen, setFormOpen] = useState(false);
 
   const fetchCases = () => {
     api.get('/cases', {
@@ -25,61 +25,56 @@ export default function CasesPage() {
 
   useEffect(() => { fetchCases(); }, [query, page])
 
-//   const handleNewCase = () => {
-//     setPage(1)
-//     fetchCases()
-//   }
-
   return (
-    <div className="container py-4">
-      <h2 className="mb-4">📁 Sprawy</h2>
+    <Box className="container" sx={{ py: 4, mr: 5, ml: 5 }}>
+      <Typography variant="h4" gutterBottom>List of cases</Typography>
 
-      <div className="card mb-4 shadow-sm">
-        <div className="card-body">
-          <h5 className="card-title">Dodaj nowa sprawe</h5>
-          <CaseForm onCreate={fetchCases} />
-        </div>
-      </div>
-
-      <div className="input-group mb-4">
-        <span className="input-group-text"><i className="bi bi-search" /></span>
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Wyszukaj po nazwie"
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+        <TextField
+          variant="outlined"
+          placeholder="Search per title"
           value={query}
           onChange={e => {
-            setQuery(e.target.value)
-            setPage(1)
+            setQuery(e.target.value);
+            setPage(1);
           }}
+          size="small"
+          sx={{ flex: 1, mr: 2 }}
         />
-      </div>
+        <Button variant="contained" color="primary" onClick={() => setFormOpen(true)}>{ "Create case" }</Button>
+      </Box>
 
-      <div className="row">
+      <Grid container spacing={2}>
         {cases.length > 0 ? (
           cases.map(c => (
-            <div key={c.id} className="col-md-6 mb-3">
+            <Grid item xs={12} md={6} key={c.id}>
               <CaseItem caseData={c} />
-            </div>
+            </Grid>
           ))
         ) : (
-          <div className="text-muted">Nie ma spraw</div>
+          <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>No cases</Typography>
         )}
-      </div>
+      </Grid>
 
       {meta.total_pages > 1 && (
-        <nav className="mt-4">
-          <ul className="pagination justify-content-center">
-            {Array.from({ length: meta.total_pages }, (_, i) => (
-              <li key={i} className={`page-item ${page === i + 1 ? 'active' : ''}`}>
-                <button className="page-link" onClick={() => setPage(i + 1)}>
-                  {i + 1}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+          <Pagination
+            count={meta.total_pages}
+            page={page}
+            onChange={(e, value) => setPage(value)}
+            color="primary"
+          />
+        </Box>
       )}
-    </div>
-  )
-};
+
+      <Modal open={formOpen} onClose={() => setFormOpen(false)}>
+        <CaseForm
+          onCreate={() => {
+            setFormOpen(false);
+            fetchCases();
+          }}
+        />
+      </Modal>
+    </Box>
+  );
+}

@@ -4,7 +4,7 @@ class Api::V1::CasesController < ApplicationController
   before_action :set_case, only: [:show, :update, :destroy]
   before_action :authorize_access!, only: [:show, :update, :destroy]
 
-  # GET /api/v1/cases
+  # GET /cases
   def index
     query = params[:query].to_s.strip.downcase
     page = (params[:page] || 1).to_i
@@ -32,12 +32,12 @@ class Api::V1::CasesController < ApplicationController
     }
   end
 
-  # GET /api/v1/cases/:id
+  # GET /cases/:id
   def show
     render json: @case, status: :ok
   end
 
-  # POST /api/v1/cases
+  # POST /cases
   def create
     return head :forbidden unless current_user.secretary?
 
@@ -49,7 +49,7 @@ class Api::V1::CasesController < ApplicationController
     end
   end
 
-  # PATCH/PUT /api/v1/cases/:id
+  # PATCH/PUT /cases/:id
   def update
     return head :forbidden unless current_user.secretary?
 
@@ -60,7 +60,7 @@ class Api::V1::CasesController < ApplicationController
     end
   end
 
-  # DELETE /api/v1/cases/:id
+  # DELETE /cases/:id
   def destroy
     return head :forbidden unless current_user.secretary?
 

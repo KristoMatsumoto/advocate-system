@@ -5,15 +5,30 @@ import Dashboard from './pages/Dashboard'
 import LoginPage from './pages/LoginPage'
 import CasesPage from './pages/CasesPage';
 
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+
+const theme = createTheme({
+  palette: {
+    mode: 'light',
+    primary: {
+      main: '#2c539c',
+    },
+  },
+});
+
 function App() {
   return (
-    <AuthProvider>
-      <Routes>
-        <Route path="/login" element={<LoginPage/>} />
-        <Route path="/" element={<ProtectedRoute><Dashboard/></ProtectedRoute>} />      
-        <Route path="/cases" element={<ProtectedRoute><CasesPage /></ProtectedRoute>} />
-      </Routes>
-    </AuthProvider>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<LoginPage/>} />
+          <Route path="/" element={<ProtectedRoute><Dashboard/></ProtectedRoute>} />      
+          <Route path="/cases" element={<ProtectedRoute><CasesPage /></ProtectedRoute>} />
+        </Routes>
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
 

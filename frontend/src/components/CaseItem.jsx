@@ -1,11 +1,15 @@
-export default function CaseItem({ caseData }) {
+import { Card, CardContent, CardActions, Typography, Button } from '@mui/material';
+
+export default function CaseItem({ data }) {
   return (
-    <div className="card shadow-sm h-100">
-      <div className="card-body">
-        <h5 className="card-title">{caseData.title}</h5>
-        <p className="card-text text-muted">{caseData.description}</p>
-        <button className="btn btn-sm btn-outline-primary">Подробнее</button>
-      </div>
-    </div>
+    <Card elevation={3} sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <CardContent sx={{ flexGrow: 1 }}>
+        <Typography variant="h6" gutterBottom>{data.title}</Typography>
+        <Typography variant="body2" color="text.secondary">{data.description || 'No description provided.'}</Typography>
+      </CardContent>
+      <CardActions>
+        <Button size="small" variant="outlined">View details</Button>
+      </CardActions>
+    </Card>
   );
 };

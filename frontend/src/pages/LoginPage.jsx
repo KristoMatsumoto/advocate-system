@@ -4,5 +4,8 @@ import AuthForm from '../components/AuthForm'
 
 export default function LoginPage() {
   const { login } = useContext(AuthContext)
-  return <AuthForm onAuthSuccess={login} />
+  
+  return (
+    <AuthForm onAuthSuccess={login} />
+  )
 }
