@@ -1,5 +1,5 @@
 import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 export default function AppHeader() {
     return (
@@ -8,10 +8,10 @@ export default function AppHeader() {
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>LegalDesk</Typography>
 
                 <Box sx={{ display: 'flex', gap: 2 }}>
-                    <Button component={RouterLink} to="/" color="inherit">Home</Button>
-                    <Button component={RouterLink} to="/cases" color="inherit">Cases</Button>
-                    <Button component={RouterLink} to="/staff" color="inherit">Staff</Button>
-                    <Button component={RouterLink} to="/profile" color="inherit">Profile</Button>
+                    <Button component={Link} to="/" color="inherit">Home</Button>
+                    <Button component={Link} to="/cases" color="inherit">Cases</Button>
+                    <Button component={Link} to="/staff" color="inherit">Staff</Button>
+                    <Button component={Link} to="/profile" color="inherit">Profile</Button>
                 </Box>
             </Toolbar>
         </AppBar>

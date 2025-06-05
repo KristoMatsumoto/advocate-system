@@ -1,4 +1,5 @@
 import { Card, CardContent, CardActions, Typography, Button } from '@mui/material';
+import { Link } from 'react-router-dom'
 
 export default function CaseItem({ data }) {
   return (
@@ -8,7 +9,7 @@ export default function CaseItem({ data }) {
         <Typography variant="body2" color="text.secondary">{data.description || 'No description provided.'}</Typography>
       </CardContent>
       <CardActions>
-        <Button size="small" variant="outlined">View details</Button>
+        <Button component={Link} to={`/case/${data.id}`} size="small" variant="outlined">View details</Button>
       </CardActions>
     </Card>
   );

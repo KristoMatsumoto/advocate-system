@@ -47,8 +47,8 @@ export default function CasesPage() {
       <Grid container spacing={2}>
         {cases.length > 0 ? (
           cases.map(c => (
-            <Grid item xs={12} md={6} key={c.id}>
-              <CaseItem caseData={c} />
+            <Grid key={c.id}>
+              <CaseItem data={c} />
             </Grid>
           ))
         ) : (

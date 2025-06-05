@@ -4,6 +4,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Dashboard from './pages/Dashboard'
 import LoginPage from './pages/LoginPage'
 import CasesPage from './pages/CasesPage';
+import CasePage from './pages/CasePage';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -26,6 +27,7 @@ function App() {
           <Route path="/login" element={<LoginPage/>} />
           <Route path="/" element={<ProtectedRoute><Dashboard/></ProtectedRoute>} />      
           <Route path="/cases" element={<ProtectedRoute><CasesPage /></ProtectedRoute>} />
+          <Route path="/case/:id" element={<ProtectedRoute><CasePage /></ProtectedRoute>} />
         </Routes>
       </AuthProvider>
     </ThemeProvider>

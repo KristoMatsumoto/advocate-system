@@ -4,8 +4,8 @@ Rails.application.routes.draw do
       resources :cases
       resources :notes, only: [:create, :show, :update, :destroy]
       resources :media, only: [:show, :create, :destroy]
+      resources :users, only: [:create, :index]
       post 'login', to: 'sessions#create'
-      post 'signup', to: 'users#create'
       get 'current_user', to: 'sessions#current'
     end
   end

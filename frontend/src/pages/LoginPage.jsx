@@ -1,11 +1,11 @@
 import { useContext } from 'react'
 import { AuthContext } from '../context/AuthContext'
 import AuthForm from '../components/AuthForm'
+import Loader from "../components/Loader";
 
 export default function LoginPage() {
-  const { login } = useContext(AuthContext)
+  const { login, loading } = useContext(AuthContext)
   
-  return (
-    <AuthForm onAuthSuccess={login} />
-  )
+  if (loading) return <Loader />;
+  return <AuthForm onAuthSuccess={login} />
 }

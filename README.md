@@ -32,7 +32,7 @@ rails s
 
 ### Frontend
 
-Install the necessary gems: `npm install` || `npm i`
+Install the necessary dependencies: `npm install` || `npm i`
 
 Start server: `rails s`
 

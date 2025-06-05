@@ -1,8 +1,8 @@
 class Api::V1::CasesController < ApplicationController
   include ApiAuthentication
 
-  before_action :set_case, only: [:show, :update, :destroy]
-  before_action :authorize_access!, only: [:show, :update, :destroy]
+  before_action :set_case, only: [:show, :update]
+  before_action :authorize_access!, only: [:show, :update]
 
   # GET /cases
   def index
@@ -39,7 +39,7 @@ class Api::V1::CasesController < ApplicationController
 
   # POST /cases
   def create
-    return head :forbidden unless current_user.secretary?
+    return head :forbidden if current_user.secretary?
 
     kase = Case.new(case_params)
     if kase.save
@@ -51,8 +51,6 @@ class Api::V1::CasesController < ApplicationController
 
   # PATCH/PUT /cases/:id
   def update
-    return head :forbidden unless current_user.secretary?
-
     if @case.update(case_params)
       render json: @case, status: :ok
     else
@@ -60,13 +58,13 @@ class Api::V1::CasesController < ApplicationController
     end
   end
 
-  # DELETE /cases/:id
-  def destroy
-    return head :forbidden unless current_user.secretary?
+  # # DELETE /cases/:id
+  # def destroy
+  #   return head :forbidden unless current_user.secretary?
 
-    @case.destroy
-    head :no_content
-  end
+  #   @case.destroy
+  #   head :no_content
+  # end
 
   private
 
@@ -75,12 +73,12 @@ class Api::V1::CasesController < ApplicationController
   end
 
   def authorize_access!
-    return if current_user.secretary? || @case.lawyer == current_user
+    return if current_user.admin? || current_user.secretary? || @case.lawyer == current_user
 
     render json: { error: 'Unauthorized' }, status: :unauthorized
   end
 
   def case_params
-    params.require(:case).permit(:title, :description, :court, :act_of_case, :start_date, :end_date, :lawyer_id, :client_name, :case_number)
+    params.require(:case).permit(:title, :description, :court, :start_date, :end_date, :lawyer_id, :client_name, :case_number)
   end
 end

@@ -5,7 +5,7 @@ class Case < ApplicationRecord
   has_many :collaborations, dependent: :destroy
 
   validates :title, presence: true
-  validates :act_of_case, presence: true, uniqueness: true
+  # validates :act_of_case, presence: true, uniqueness: true
   validates :client_name, presence: true
   validates :court, presence: true
 

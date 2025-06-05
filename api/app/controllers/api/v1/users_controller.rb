@@ -1,6 +1,12 @@
 class Api::V1::UsersController < ApplicationController
-  # Можно позже включить авторизацию для других экшенов
-#   skip_before_action :verify_authenticity_token
+  include ApiAuthentication
+  
+  before_action :authorize_admin!, only: [:index]
+
+  def index
+    users = User.select(:id, :email, :name, :surname).order(:surname)
+    render json: users
+  end
 
   def create
     user = User.new(user_params)
@@ -13,6 +19,12 @@ class Api::V1::UsersController < ApplicationController
   end
 
   private
+
+  def authorize_admin!
+    unless current_user&.admin?
+      render json: { error: "Unauthorized" }, status: :unauthorized
+    end
+  end
 
   def user_params
     params.require(:user).permit(:email, :password, :password_confirmation, :name, :surname, :second_name, :role)

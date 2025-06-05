@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
         setUser(res.data.user);
         setLoading(false);
       })
-    .catch(() => { console.error("Failed to fetch current user:", error); logout(); })
+    .catch((error) => { console.error("Failed to fetch current user:", error); logout(); })
   }, [])
 
   return (
