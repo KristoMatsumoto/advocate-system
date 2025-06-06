@@ -1,21 +1,20 @@
 import { useContext } from 'react'
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from '../context/AuthContext'
+import { Box, Typography, Button } from "@mui/material";
 import Loader from "../components/Loader";
 
 export default function Dashboard() {
   const { user, logout, loading } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   if (loading) return <Loader />;
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl mb-6">Welcome, {user.name}</h1>
+    <Box p={4}>
+      <Typography variant="h4" gutterBottom>Welcome, {user?.name}</Typography>
+      <Typography variant="body1" mb={4}>You are logged in as: <strong>{user?.role}</strong></Typography>
 
-      <button
-        onClick={logout}
-        className="bg-red-600 text-white px-4 py-2 rounded"
-      >
-        Logout
-      </button>
-    </div>
+      <Button variant="outlined" color="secondary" onClick={logout}>Logout</Button>
+    </Box>
   );
 }

@@ -1,11 +1,12 @@
 class Api::V1::UsersController < ApplicationController
   include ApiAuthentication
   
+  before_action :authenticate_api_user!, only: [:index]
   before_action :authorize_admin!, only: [:index]
 
   def index
-    users = User.select(:id, :email, :name, :surname).order(:surname)
-    render json: users
+    users = User.order(created_at: :desc)
+    render json: users, status: :ok
   end
 
   def create
@@ -17,13 +18,11 @@ class Api::V1::UsersController < ApplicationController
       render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
     end
   end
-
+  
   private
 
   def authorize_admin!
-    unless current_user&.admin?
-      render json: { error: "Unauthorized" }, status: :unauthorized
-    end
+    render json: { error: "Forbidden" }, status: :forbidden unless current_user.admin?
   end
 
   def user_params

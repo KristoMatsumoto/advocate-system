@@ -8,7 +8,6 @@ class Case < ApplicationRecord
   # validates :act_of_case, presence: true, uniqueness: true
   validates :client_name, presence: true
   validates :court, presence: true
-
   validate :end_date_after_start_date
 
   private

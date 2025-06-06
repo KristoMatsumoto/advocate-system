@@ -34,7 +34,7 @@ class Api::V1::CasesController < ApplicationController
 
   # GET /cases/:id
   def show
-    render json: @case, status: :ok
+    render json: @case, serializer: ::CaseSerializer, status: :ok
   end
 
   # POST /cases

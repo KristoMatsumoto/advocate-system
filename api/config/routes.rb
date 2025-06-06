@@ -1,7 +1,9 @@
 Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
-      resources :cases
+      resources :cases do
+        resources :media, only: [:create, :update, :destroy]
+      end
       resources :notes, only: [:create, :show, :update, :destroy]
       resources :media, only: [:show, :create, :destroy]
       resources :users, only: [:create, :index]
