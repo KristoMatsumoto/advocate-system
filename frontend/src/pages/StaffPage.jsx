@@ -1,13 +1,18 @@
-import { useRef, useEffect, useState, useMemo } from "react";
+import { useRef, useEffect, useState, useMemo, useContext } from "react";
 import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination, TableSortLabel, TextField, MenuItem, Grid } from "@mui/material";
 import debounce from 'lodash.debounce';
 import Loader from "../components/Loader";
 import api from "../api/axios";
+import { AuthContext } from '../context/AuthContext'
+import Forbidden from "./Forbidden"
 
 export default function StaffPage() {
+    const { user } = useContext(AuthContext);
+    if (user.role != 'admin') return <Forbidden />
+
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+    const [error, setError] = useState([]);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [totalCount, setTotalCount] = useState(0);
@@ -16,7 +21,7 @@ export default function StaffPage() {
     const [roleFilter, setRoleFilter] = useState("all");
     const [sortConfig, setSortConfig] = useState({ key: "name", direction: "asc" });
     const searchRef = useRef(null);
-    const roles = ["all", ...new Set(users.map(u => u.role))];
+    const [roles, setRoles] = useState(["all"]);
 
     const debouncedSearch = useMemo(() => debounce((value) => {
         setSearchQuery(value);
@@ -26,6 +31,7 @@ export default function StaffPage() {
     useEffect(() => { debouncedSearch(search); }, [search]);
     useEffect(() => {
         setLoading(true);
+        setError([]);
         api.get("/users", { params: {
             page: page + 1,
             per_page: rowsPerPage,
@@ -40,7 +46,11 @@ export default function StaffPage() {
             setPage(res.data.meta.page - 1);
             setRowsPerPage(res.data.meta.per_page);
         })
-        .catch(() => setError("Failed to load users"))
+        .catch(() => setError([...error, "Failed to load users"]));
+
+        api.get("users/roles")
+        .then((res) => { setRoles(["all", ...res.data.roles]); })
+        .catch((err) => { setError([...error, "Failed to load roles"]) })
         .finally(() => setLoading(false));
     }, [page, rowsPerPage, searchQuery, roleFilter, sortConfig]);
 
@@ -58,7 +68,13 @@ export default function StaffPage() {
     };
 
     if (loading) return <Loader />;
-    if (error) return <Typography color="error">{error}</Typography>;
+    if (!error || error.length != 0) return (
+        <>
+            {error.map(err => (
+                <Typography color="error">{err}</Typography>
+            ))}
+        </>
+    );
 
     return (
         <Box p={4}>

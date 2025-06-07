@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_04_032938) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_07_130926) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -57,6 +57,16 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_04_032938) do
     t.index ["lawyer_id"], name: "index_cases_on_lawyer_id"
   end
 
+  create_table "collaborations", force: :cascade do |t|
+    t.bigint "case_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["case_id", "user_id"], name: "index_collaborations_on_case_id_and_user_id", unique: true
+    t.index ["case_id"], name: "index_collaborations_on_case_id"
+    t.index ["user_id"], name: "index_collaborations_on_user_id"
+  end
+
   create_table "media", force: :cascade do |t|
     t.string "title", null: false
     t.text "description"
@@ -94,6 +104,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_04_032938) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "cases", "users", column: "lawyer_id"
+  add_foreign_key "collaborations", "cases"
+  add_foreign_key "collaborations", "users"
   add_foreign_key "media", "cases"
   add_foreign_key "media", "users"
   add_foreign_key "notes", "users"

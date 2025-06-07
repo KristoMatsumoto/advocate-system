@@ -3,6 +3,7 @@ class Case < ApplicationRecord
   has_many :notes, as: :noteable, dependent: :destroy
   has_many :media, dependent: :destroy
   has_many :collaborations, dependent: :destroy
+  has_many :collaborators, through: :collaborations, source: :user
 
   validates :title, presence: true
   # validates :act_of_case, presence: true, uniqueness: true

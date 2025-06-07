@@ -71,14 +71,14 @@ export default function AuthForm({ onAuthSuccess }) {
 
       api.post(endpoint, payload)
         .then(response => { onAuthSuccess(response.data.token, response.data.user); })
-        .catch((e) => { setError(e.message || "Something went wrong"); });
+        .catch((e) => { setError(`${e.response.data.error}` || "Something get wrong"); });
     },
   });
 
   return (
     <Paper elevation={3} sx={{ maxWidth: 400, mx: "auto", p: 4, mt: 8 }}>
       <Typography variant="h5" gutterBottom align="center">
-        {isRegister ? "Регистрация" : "Вход"}
+        {isRegister ? "Registration" : "Login"}
       </Typography>
 
       <Box component="form" onSubmit={formik.handleSubmit} noValidate>

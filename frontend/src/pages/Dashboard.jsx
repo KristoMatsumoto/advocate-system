@@ -12,7 +12,7 @@ export default function Dashboard() {
       <Typography variant="h4" gutterBottom>Welcome, {`${user.name}${user.second_name? ` ${user.second_name}` : ""}`}</Typography>
       <Typography variant="body1" mb={4}>You are logged in as: <strong>{user.role}</strong></Typography>
 
-      <Button variant="outlined" color="secondary" onClick={logout}>Logout</Button>
+      <Button variant="outlined" color="error" onClick={logout}>Logout</Button>
     </Box>
   );
 }

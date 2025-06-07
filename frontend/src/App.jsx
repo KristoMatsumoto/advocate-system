@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard'
 import LoginPage from './pages/LoginPage'
 import CasesPage from './pages/CasesPage';
 import CasePage from './pages/CasePage';
+import CollaborationsPage from './pages/CollaborationsPage'
 import StaffPage from './pages/StaffPage';
 import ProfilePage from './pages/ProfilePage'
 import NotFound from "./pages/NotFound";
@@ -31,11 +32,12 @@ export default function App() {
           <Route path="/" element={<ProtectedRoute><Dashboard/></ProtectedRoute>} />      
           <Route path="/cases" element={<ProtectedRoute><CasesPage /></ProtectedRoute>} />
           <Route path="/case/:id" element={<ProtectedRoute><CasePage /></ProtectedRoute>} />
+          <Route path="/case/:id/collaborations" element={<ProtectedRoute><CollaborationsPage /></ProtectedRoute>} /> 
           <Route path="/staff" element={<ProtectedRoute><StaffPage /></ProtectedRoute>} /> 
-          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} /> 
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
         </Routes>
       </AuthProvider>
     </ThemeProvider>
-  )
+  );
 }

@@ -33,8 +33,8 @@ export default function ProfilePage() {
                 setError("No changes to save.");
                 return;
             }
-            api.put(`/users/${user.id}`, { user: values })
-                .then((res) => { setUser(res.data); setSuccess("Profile updated successfully!"); setError(""); })
+            api.patch(`/users/${user.id}`, { user: values })
+                .then((res) => { setUser(res.data.user); setSuccess("Profile updated successfully!"); setError(""); })
                 .catch((err) => { setError("Failed to update profile."); setSuccess(""); });
         }
     });
@@ -57,7 +57,7 @@ export default function ProfilePage() {
                 .required("Confirm password is required"),
         }),
         onSubmit: (values) => {
-            api.put(`/users/${user.id}/change_password`, {
+            api.patch(`/users/${user.id}/change_password`, {
                 current_password: values.current_password,
                 password: values.new_password,
             })

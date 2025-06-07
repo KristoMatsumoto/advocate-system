@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState, useMemo } from 'react';
-import { Box, Button, TextField, Typography, Pagination, Grid, Modal } from '@mui/material';
+import { Box, Button, TextField, Typography, Pagination, Grid, Modal, MenuItem } from '@mui/material';
 import debounce from 'lodash.debounce';
 import api from '../api/axios';
 import CaseForm from '../components/CaseForm';
@@ -11,7 +11,7 @@ export default function CasesPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [page, setPage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [rowsPerPage, setRowsPerPage] = useState(20);
     const [totalCount, setTotalCount] = useState(0);
     const [search, setSearch] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
@@ -19,84 +19,115 @@ export default function CasesPage() {
     const [formOpen, setFormOpen] = useState(false);
     const searchRef = useRef(null);
 
-  const debouncedSearch = useMemo(() => debounce((value) => {
-    setSearchQuery(value);
-  }, 1000), []);
+    const debouncedSearch = useMemo(() => debounce((value) => {
+        setSearchQuery(value);
+    }, 1000), []);
 
-  const fetchCases = () => {
-    api.get('/cases', { params: { 
-      page: page,
-      per_page: rowsPerPage,
-      search:  searchQuery || undefined,
-      sort: sortConfig.key,
-      direction: sortConfig.direction
-    }})
-    .then((res) => {
-      setCases(res.data.cases);
-      setTotalCount(res.data.meta.total);
-      setPage(res.data.meta.page);
-      setRowsPerPage(res.data.meta.per_page);
-    })
-    .catch((err) => setError("Failed to load cases"))
-    .finally(() => setLoading(false));
-  }
+    const fetchCases = () => {
+        api.get('/cases', { params: { 
+            page: page,
+            per_page: rowsPerPage,
+            search:  searchQuery || undefined,
+            sort: sortConfig.key,
+            direction: sortConfig.direction
+        }})
+        .then((res) => {
+            setCases(res.data.cases);
+            setTotalCount(res.data.meta.total);
+            setPage(res.data.meta.page);
+            setRowsPerPage(res.data.meta.per_page);
+        })
+        .catch((err) => setError("Failed to load cases"))
+        .finally(() => setLoading(false));
+    }
 
-  useEffect(() => { if (searchRef.current) searchRef.current.focus(); }, []);
-  useEffect(() => { debouncedSearch(search); }, [search]);
-  useEffect(() => { fetchCases(); }, [page, rowsPerPage, searchQuery, sortConfig])
+    useEffect(() => { if (searchRef.current) searchRef.current.focus(); }, []);
+    useEffect(() => { debouncedSearch(search); }, [search]);
+    useEffect(() => { fetchCases(); }, [page, rowsPerPage, searchQuery, sortConfig])
 
-  if (loading) return <Loader />;
-  if (error) return <Typography color="error">{error}</Typography>;
+    if (loading) return <Loader />;
+    if (error) return <Typography color="error">{error}</Typography>;
 
-  return (
-    <Box className="container" sx={{ py: 4, mr: 5, ml: 5 }}>
-      <Typography variant="h4" gutterBottom>List of cases</Typography>
+    return (
+        <Box className="container" sx={{ py: 4, mr: 5, ml: 5 }}>
+            <Typography variant="h4" gutterBottom>List of cases</Typography>
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-        <TextField
-          variant="outlined"
-          placeholder="Search per title"
-          id="search-field"
-          value={search}
-          inputRef={searchRef}
-          onChange={e => setSearch(e.target.value)}
-          size="small"
-          sx={{ flex: 1, mr: 2 }}
-        />
-        <Button variant="contained" color="primary" onClick={() => setFormOpen(true)}>{ "Create case" }</Button>
-      </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                <TextField
+                    variant="outlined"
+                    placeholder="Search per title"
+                    id="search-field"
+                    value={search}
+                    inputRef={searchRef}
+                    onChange={e => setSearch(e.target.value)}
+                    size="small"
+                    sx={{ flex: 1, mr: 2 }}
+                />
+                <Grid container spacing={2} sx={{ mr: 2 }}>
+                    <Grid>
+                        <TextField
+                            select
+                            fullWidth
+                            label="Sort by"
+                            value={sortConfig.key}
+                            onChange={e => setSortConfig({ ...sortConfig, key: e.target.value })}
+                            size="small"
+                        >
+                            {["title", "created_at"].map(key => (
+                                <MenuItem key={key} value={key}>
+                                    {key.replace("_", " ").toUpperCase()}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                    </Grid>
+                    <Grid>
+                        <TextField
+                            select
+                            fullWidth
+                            label="Direction"
+                            value={sortConfig.direction}
+                            onChange={e => setSortConfig({ ...sortConfig, direction: e.target.value })}
+                            size="small"
+                        >
+                            <MenuItem value="asc">Ascending</MenuItem>
+                            <MenuItem value="desc">Descending</MenuItem>
+                        </TextField>
+                    </Grid>
+                </Grid>
+                <Button variant="contained" color="primary" onClick={() => setFormOpen(true)}>{ "Create case" }</Button>
+            </Box>
 
-      <Grid container spacing={2}>
-        {cases.length > 0 ? (
-          cases.map(c => (
-            <Grid key={c.id}>
-              <CaseItem data={c} />
+            <Grid container spacing={2}>
+                {cases.length > 0 ? (
+                    cases.map(c => (
+                        <Grid key={c.id}>
+                            <CaseItem data={c} />
+                        </Grid>
+                    ))
+                ) : (
+                    <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>No cases</Typography>
+                )}
             </Grid>
-          ))
-        ) : (
-          <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>No cases</Typography>
-        )}
-      </Grid>
 
-      {totalCount > 1 && (
-        <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
-          <Pagination
-            count={totalCount}
-            page={page}
-            onChange={(e, value) => setPage(value)}
-            color="primary"
-          />
+            {totalCount > 1 && (
+                <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+                    <Pagination
+                        count={Math.ceil(totalCount / rowsPerPage)}
+                        page={page}
+                        onChange={(e, value) => setPage(value)}
+                        color="primary"
+                    />
+                </Box>
+            )}
+
+            <Modal open={formOpen} onClose={() => setFormOpen(false)}>
+                <CaseForm
+                    onCreate={() => {
+                      setFormOpen(false);
+                      fetchCases();
+                    }}
+                />
+            </Modal>
         </Box>
-      )}
-
-      <Modal open={formOpen} onClose={() => setFormOpen(false)}>
-        <CaseForm
-          onCreate={() => {
-            setFormOpen(false);
-            fetchCases();
-          }}
-        />
-      </Modal>
-    </Box>
-  );
+    );
 }

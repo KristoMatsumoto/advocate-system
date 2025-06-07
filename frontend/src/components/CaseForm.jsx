@@ -14,8 +14,8 @@ export default function CaseForm({ onCreate }) {
     useEffect(() => {
         if (user?.role === 'admin') {
             setLoadingUsers(true);
-            api.get("/users")
-                .then((res) => setUsers(res.data))
+            api.get("/users/lawyers")
+                .then((res) => setUsers(res.data.users))
                 .catch(() => setUsers([]))
                 .finally(() => setLoadingUsers(false));
         }

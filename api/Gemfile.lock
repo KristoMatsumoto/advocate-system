@@ -106,6 +106,7 @@ GEM
     drb (2.2.3)
     erb (5.0.1)
     erubi (1.13.1)
+    fiddle (1.1.6)
     globalid (1.2.1)
       activesupport (>= 6.1)
     i18n (1.14.7)
@@ -226,6 +227,7 @@ DEPENDENCIES
   bootsnap
   debug
   dotenv-rails
+  fiddle
   jwt
   pg (~> 1.1)
   puma (>= 5.0)
