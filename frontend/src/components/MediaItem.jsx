@@ -24,7 +24,7 @@ export default function MediaItem({ item, onUpdate, onDelete }) {
       title: Yup.string().required("Title is required"),
       description: Yup.string(),
     }),
-    onSubmit: async (values) => {
+    onSubmit: (values) => {
       api.put(`/media/${item.id}`, {
           media: {
             ...values,
@@ -36,15 +36,12 @@ export default function MediaItem({ item, onUpdate, onDelete }) {
     },
   });
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     const confirmed = window.confirm("Are you sure you want to delete this media?");
     if (!confirmed) return;
-    try {
-      await api.delete(`/media/${item.id}`);
-      onDelete(item.id);
-    } catch (err) {
-      setError("Failed to delete media");
-    }
+    api.delete(`/media/${item.id}`)
+      .then((res) => { onDelete(item.id); setError(""); })
+      .catch((err) => { setError("Failed to delete media"); })
   };
 
   const toggleRemoveFile = (attachmentId) => {

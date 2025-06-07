@@ -1,5 +1,6 @@
-import { useEffect, useState, useMemo } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination, TableSortLabel, TextField, MenuItem, Grid } from "@mui/material";
+import debounce from 'lodash.debounce';
 import Loader from "../components/Loader";
 import api from "../api/axios";
 
@@ -9,41 +10,39 @@ export default function StaffPage() {
     const [error, setError] = useState("");
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [totalCount, setTotalCount] = useState(0);
     const [search, setSearch] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
     const [roleFilter, setRoleFilter] = useState("all");
     const [sortConfig, setSortConfig] = useState({ key: "name", direction: "asc" });
+    const searchRef = useRef(null);
     const roles = ["all", ...new Set(users.map(u => u.role))];
 
+    const debouncedSearch = useMemo(() => debounce((value) => {
+        setSearchQuery(value);
+    }, 1000), []);
+
+    useEffect(() => { if (searchRef.current) searchRef.current.focus(); }, []);
+    useEffect(() => { debouncedSearch(search); }, [search]);
     useEffect(() => {
-        api.get("/users")
-            .then(res => setUsers(res.data))
-            .catch(() => setError("Failed to load users"))
-            .finally(() => setLoading(false));
-    }, []);
-
-    const filteredAndSortedUsers = useMemo(() => {
-        let filtered = users;
-
-        if (roleFilter !== "all") 
-            filtered = filtered.filter(u => u.role === roleFilter);
-        
-        if (search) {
-            const s = search.toLowerCase();
-            filtered = filtered.filter(u =>
-                u.name?.toLowerCase().includes(s) || u.email?.toLowerCase().includes(s)
-            );
-        }
-
-        filtered.sort((a, b) => {
-            const aVal = a[sortConfig.key]?.toLowerCase?.() || "";
-            const bVal = b[sortConfig.key]?.toLowerCase?.() || "";
-            if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
-            if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
-            return 0;
-        });
-
-        return filtered;
-    }, [users, search, roleFilter, sortConfig]);
+        setLoading(true);
+        api.get("/users", { params: {
+            page: page + 1,
+            per_page: rowsPerPage,
+            search:  searchQuery || undefined,
+            role: roleFilter !== "all" ? roleFilter : undefined,
+            sort: sortConfig.key,
+            direction: sortConfig.direction
+        }})
+        .then(res => {
+            setUsers(res.data.users);
+            setTotalCount(res.data.meta.total);
+            setPage(res.data.meta.page - 1);
+            setRowsPerPage(res.data.meta.per_page);
+        })
+        .catch(() => setError("Failed to load users"))
+        .finally(() => setLoading(false));
+    }, [page, rowsPerPage, searchQuery, roleFilter, sortConfig]);
 
     const handleSort = (key) => {
         setSortConfig(prev => ({
@@ -66,18 +65,21 @@ export default function StaffPage() {
             <Typography variant="h4" gutterBottom>Staff Management</Typography>
 
             <Grid container spacing={2} sx={{ mb: 2 }}>
-                <Grid item xs={12} md={6}>
+                <Grid>
                     <TextField
                         fullWidth
+                        id="search-field"
                         label="Search by name or email"
+                        inputRef={searchRef}
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                     />
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid>
                     <TextField
                         select
                         fullWidth
+                        id="sort-role"
                         label="Filter by role"
                         value={roleFilter}
                         onChange={e => setRoleFilter(e.target.value)}
@@ -108,7 +110,7 @@ export default function StaffPage() {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {filteredAndSortedUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(user => (
+                            {users.map(user => (
                                 <TableRow key={user.id}>
                                     <TableCell>{user.surname}</TableCell>
                                     <TableCell>{`${user.name} ${user.second_name}`}</TableCell>
@@ -123,7 +125,7 @@ export default function StaffPage() {
 
                 <TablePagination
                     component="div"
-                    count={filteredAndSortedUsers.length}
+                    count={totalCount}
                     page={page}
                     onPageChange={handleChangePage}
                     rowsPerPage={rowsPerPage}

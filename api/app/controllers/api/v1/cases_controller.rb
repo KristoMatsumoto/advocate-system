@@ -6,30 +6,28 @@ class Api::V1::CasesController < ApplicationController
 
   # GET /cases
   def index
-    query = params[:query].to_s.strip.downcase
-    page = (params[:page] || 1).to_i
-    per_page = (params[:per_page] || 5).to_i
-
     cases = Case.all
 
-    if query.present?
-      cases = cases.where("LOWER(title) LIKE ?", "%#{query}%")
+    if params[:search].present?
+      terms = params[:search].downcase.split(" ")
+      terms.each do |term|
+        cases = cases.where(
+          "LOWER(title) LIKE :term OR LOWER(description) LIKE :term",
+          term: "%#{term}%"
+        )
+      end
     end
 
-    total_count = cases.count
-    cases = cases.order(created_at: :desc)
-                 .offset((page - 1) * per_page)
-                 .limit(per_page)
+    sort_column = params[:sort] || "created_at"
+    sort_dir = params[:direction] == "asc" ? :asc : :desc
+    cases = cases.order(sort_column => sort_dir)
 
-    render json: {
-      cases: cases.as_json(only: [:id, :title, :description]),
-      meta: {
-        current_page: page,
-        per_page: per_page,
-        total_pages: (total_count.to_f / per_page).ceil,
-        total_count: total_count
-      }
-    }
+    page = (params[:page] || 1).to_i
+    per_page = (params[:per_page] || 10).to_i
+    total = cases.count
+    cases = cases.offset((page - 1) * per_page).limit(per_page)
+
+    render json: { cases: cases.as_json(only: [:id, :title, :description]), meta: { total: total, page: page, per_page: per_page } }, status: :ok
   end
 
   # GET /cases/:id

@@ -1,5 +1,5 @@
 class Api::V1::MediaController < ApplicationController
-    before_action :authorize_access!, only: [:show, :update]
+    before_action :authorize_access!
     before_action :set_case, only: [:create]
     before_action :set_medium, only: [:show, :update, :destroy]
 
@@ -26,7 +26,7 @@ class Api::V1::MediaController < ApplicationController
         }
     end
 
-    # PATCH/PUT /case/:case_id/media/:id 
+    # PATCH/PUT /media/:id 
     def update
         if media.update(media_params)
             remove_attachments if params[:media][:removed_attachment_ids].present?
@@ -37,7 +37,6 @@ class Api::V1::MediaController < ApplicationController
     end
 
     # DELETE /media/:id
-    # DELETE /case/:case_id/media/:id
     def destroy
         if @medium.user == @current_user || @medium.case.lawyer == @current_user
             @medium.destroy

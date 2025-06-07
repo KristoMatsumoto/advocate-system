@@ -31,11 +31,10 @@ export default function CaseFormEdit({ caseData, onSuccess }) {
         },
         enableReinitialize: true,
         validationSchema,
-        onSubmit: async (values, { setSubmitting }) => {
+        onSubmit: (values) => {
             api.patch(`/cases/${caseData.id}`, values)
-                .then((res) => onSuccess?.(response.data))
-                .catch((err) => console.error(error))
-                // .finally(setSubmitting(false))
+                .then((res) => onSuccess?.(res.data))
+                .catch((err) => console.error(err));
         },
     });
 

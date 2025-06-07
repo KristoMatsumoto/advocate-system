@@ -35,6 +35,7 @@ export default function AuthForm({ onAuthSuccess }) {
       otherwise: () => Yup.string().notRequired(),
     }),
   });
+  
   const formik = useFormik({
     initialValues: {
       email: '',
@@ -68,13 +69,9 @@ export default function AuthForm({ onAuthSuccess }) {
             password: values.password,
           };
 
-      try {
-        api.post(endpoint, payload)
+      api.post(endpoint, payload)
         .then(response => { onAuthSuccess(response.data.token, response.data.user); })
         .catch((e) => { setError(e.message || "Something went wrong"); });
-      } catch (e) {
-        setError(e.response?.data?.error || e.message || "Network error");
-      }
     },
   });
 
