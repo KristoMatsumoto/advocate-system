@@ -40,7 +40,7 @@ export default function CaseFormEdit({ caseData, onSuccess }) {
     return (
         <>
             <Typography variant="h6" gutterBottom>Edit Case</Typography>
-            <Stack spacing={2}>
+            <Stack spacing={2} sx={{ pt: 4 }}>
                 <TextField
                     label="Title"
                     name="title"

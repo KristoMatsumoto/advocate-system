@@ -1,5 +1,7 @@
 class Api::V1::MediaController < ApplicationController
-    before_action :authorize_access!
+    include ApiAuthentication
+
+    before_action :authenticate_api_user!
     before_action :set_case, only: [:create]
     before_action :set_medium, only: [:show, :update, :destroy]
 
@@ -28,11 +30,11 @@ class Api::V1::MediaController < ApplicationController
 
     # PATCH/PUT /media/:id 
     def update
-        if media.update(media_params)
+        if @medium.update(media_params)
             remove_attachments if params[:media][:removed_attachment_ids].present?
-            render json: media, status: :ok
+            render json: @medium, status: :ok
         else
-            render json: { errors: media.errors.full_messages }, status: :unprocessable_entity
+            render json: { errors: @medium.errors.full_messages }, status: :unprocessable_entity
         end
     end
 
@@ -61,8 +63,8 @@ class Api::V1::MediaController < ApplicationController
     end
 
     def remove_attachments
-        attachment_ids = params[:media][:removed_attachment_ids].map(&:to_i)
-        attachments = @media.files.where(id: attachment_ids)
+        attachment_ids = params[:media][:removed_attachment_ids].to_unsafe_h.values.map(&:to_i)
+        attachments = @medium.files.where(id: attachment_ids)
         attachments.each(&:purge)
     end
 end

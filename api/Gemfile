@@ -50,6 +50,9 @@ group :development, :test do
 
   # Will no longer be part of the default gems starting from Ruby 3.5.0.
   gem 'fiddle'
+
+  # To generate some information to debug
+  gem 'faker'
 end
 
 group :development do

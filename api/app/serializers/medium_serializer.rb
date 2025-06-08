@@ -1,12 +1,21 @@
 class MediumSerializer < ActiveModel::Serializer
-    attributes :id, :title, :description, :attachments
-
-    belongs_to :case
+    attributes :id, :title, :description, :attachments, :user
     
     def attachments
         object.files.map do |file| {
+            id: file.id,
             name: file.filename.to_s,
-            url: Rails.application.routes.url_helpers.rails_blob_url(file, only_path: true)
+            url: Rails.application.routes.url_helpers.rails_blob_url(file, only_path: true),
+            content_type: file.content_type
         } end
+    end
+
+    def user
+        u = object.user
+        return  {
+            id: u.id,
+            name: u.name,
+            surname: u.surname,
+        } if u
     end
 end

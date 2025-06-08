@@ -43,14 +43,12 @@ export default function CasePage() {
     if (!data) return null;
 
     return (
-        <>
-            {/* Добавить подписи к данным (медиа, заметки), кто их добавил */}
-            
-            <Box sx={{ maxWidth: 600, mx: "auto", mt: 4 }}>
+        <>            
+            <Box sx={{ mx: 5, mt: 4 }}>
                 {editMode ? (
                     <CaseFormEdit caseData={data} onSuccess={(updated) => { setData(updated); setEditMode(false); }} />
                 ) : (
-                    <Stack spacing={2}>
+                    <Stack spacing={2} sx={{ pt: 4 }}>
                         <Typography variant="h6">Case Information</Typography>
                         <ViewField label="Title" value={data.title} />
                         <ViewField label="Lawyer" value={`${data.lawyer.name} ${data.lawyer.surname} (${data.lawyer.email})`} />
@@ -63,7 +61,7 @@ export default function CasePage() {
                     </Stack>
                 )}
                 {(user.id === data.lawyer.id) && (
-                    <Stack spacing={2} sx={{ mt: 2, mb: 2 }}>
+                    <Stack spacing={2} sx={{ pb: 4, my: 2 }}>
                         <Button onClick={() => setEditMode(!editMode)} variant="outlined">
                             {editMode ? "Cancel" : "Edit Case"}
                         </Button>
@@ -73,7 +71,7 @@ export default function CasePage() {
                 <CollaborationsForm caseData={data}/>
             </Box>
             
-            <Box className="container" sx={{ py: 4, mr: 5, ml: 5 }}>
+            <Box className="container" sx={{ py: 4, mx: 5 }}>
                 <Button onClick={() => setMediaDialogOpen(true)} variant="outlined">
                     New media
                 </Button>
@@ -86,6 +84,7 @@ export default function CasePage() {
                 <MediaUploadForm
                     caseId={data.id}
                     onUpload={handleNewMedia}
+                    onClose={() => setMediaDialogOpen(false)}
                 />
             </Modal>
         </>

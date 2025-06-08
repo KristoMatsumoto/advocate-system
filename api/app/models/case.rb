@@ -1,6 +1,6 @@
 class Case < ApplicationRecord
   belongs_to :lawyer, class_name: 'User'
-  has_many :notes, as: :noteable, dependent: :destroy
+  has_many :notes, as: :notable, dependent: :destroy
   has_many :media, dependent: :destroy
   has_many :collaborations, dependent: :destroy
   has_many :collaborators, through: :collaborations, source: :user

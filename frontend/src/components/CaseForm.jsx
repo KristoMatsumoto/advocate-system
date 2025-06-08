@@ -6,7 +6,7 @@ import * as Yup from 'yup';
 import api from "../api/axios";
 import { AuthContext } from '../context/AuthContext'
 
-export default function CaseForm({ onCreate }) {
+export default function CaseForm({ onCreate, onClose }) {
     const { user } = useContext(AuthContext);
     const [users, setUsers] = useState([]);
     const [loadingUsers, setLoadingUsers] = useState(false);
@@ -49,16 +49,13 @@ export default function CaseForm({ onCreate }) {
         validationSchema,
         onSubmit: (data, { resetForm }) => {
             api.post('/cases', data)
-            .then(() => {
-                resetForm();
-                if (onCreate) onCreate();
-            })
+            .then(() => { resetForm(); onCreate(); onClose(); })
             .catch(err => console.error(err.message));
         },
     });
 
     return (
-        <Paper elevation={3} sx={{ p: 4, mt: 4, mr: 4, ml: 4 }}>
+        <Paper elevation={3} sx={{ p: 4, mt: 4, mx: 4 }}>
             <Typography variant="h6" gutterBottom>
                 Create new case
             </Typography>

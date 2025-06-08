@@ -129,7 +129,7 @@ export default function StaffPage() {
                             {users.map(user => (
                                 <TableRow key={user.id}>
                                     <TableCell>{user.surname}</TableCell>
-                                    <TableCell>{`${user.name} ${user.second_name}`}</TableCell>
+                                    <TableCell>{`${user.name}${user.second_name ? ` ${user.second_name}` : ""}`}</TableCell>
                                     <TableCell>{user.email}</TableCell>
                                     <TableCell>{user.role}</TableCell>
                                     <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>

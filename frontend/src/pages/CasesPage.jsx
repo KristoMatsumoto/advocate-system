@@ -122,10 +122,8 @@ export default function CasesPage() {
 
             <Modal open={formOpen} onClose={() => setFormOpen(false)}>
                 <CaseForm
-                    onCreate={() => {
-                      setFormOpen(false);
-                      fetchCases();
-                    }}
+                    onCreate={fetchCases}
+                    onClose={() => setFormOpen(false)}
                 />
             </Modal>
         </Box>

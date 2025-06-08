@@ -1,5 +1,7 @@
 class Api::V1::NotesController < ApplicationController
-    before_action :authorize_request
+    include ApiAuthentication
+
+    before_action :authenticate_api_user!
     before_action :set_note, only: [:show, :update, :destroy]
 
     # def index

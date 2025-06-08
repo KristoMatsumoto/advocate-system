@@ -47,7 +47,7 @@ export default function CollaborationsForm({ caseData }) {
             {loading ? (
                 <Loader />
             ) : (
-                <Stack spacing={2} sx={{ mt: 2, mb: 2 }}>
+                <Stack spacing={2} sx={{ py: 4, mt: 2, mb: 2 }}>
                     <Autocomplete
                         sx={{ mt: 4 }}
                         multiple
