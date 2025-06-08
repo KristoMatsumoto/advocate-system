@@ -2,7 +2,7 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :cases do
-        resource :collaboration, only: [:show, :create, :destroy]
+        resource :collaboration, only: [:show, :create, :destroy, :update]
         get "/collaboration/available_users", to: "collaborations#available"
         resources :media, only: [:create]
         # resources :notes, only: [:create]

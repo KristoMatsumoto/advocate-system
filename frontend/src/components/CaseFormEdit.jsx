@@ -1,5 +1,4 @@
-import React from "react";
-import { Box, Button, TextField, Stack, Typography} from "@mui/material";
+import { Button, TextField, Stack, Typography} from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import api from "../api/axios";
@@ -21,13 +20,13 @@ export default function CaseFormEdit({ caseData, onSuccess }) {
 
     const formik = useFormik({
         initialValues: {
-            title: caseData?.title || "",
-            description: caseData?.description || "",
-            case_number: caseData?.case_number || "",
-            client_name: caseData?.client_name || "",
-            court: caseData?.court || "",
-            start_date: caseData?.start_date || "",
-            end_date: caseData?.end_date || "",
+            title: caseData.title || "",
+            description: caseData.description || "",
+            case_number: caseData.case_number || "",
+            client_name: caseData.client_name || "",
+            court: caseData.court || "",
+            start_date: caseData.start_date || "",
+            end_date: caseData.end_date || "",
         },
         enableReinitialize: true,
         validationSchema,
@@ -39,7 +38,7 @@ export default function CaseFormEdit({ caseData, onSuccess }) {
     });
 
     return (
-        <Box component="form" onSubmit={formik.handleSubmit} noValidate sx={{ maxWidth: 600, mx: "auto", mt: 4 }}>
+        <>
             <Typography variant="h6" gutterBottom>Edit Case</Typography>
             <Stack spacing={2}>
                 <TextField
@@ -122,6 +121,6 @@ export default function CaseFormEdit({ caseData, onSuccess }) {
                     Save changes
                 </Button>
             </Stack>
-        </Box>
+        </>
     );
 }

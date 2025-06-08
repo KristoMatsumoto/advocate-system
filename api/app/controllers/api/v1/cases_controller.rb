@@ -1,8 +1,10 @@
 class Api::V1::CasesController < ApplicationController
     include ApiAuthentication
 
+    before_action :authenticate_api_user!
     before_action :set_case, only: [:show, :update]
-    before_action :authorize_access!, only: [:show, :update]
+    before_action :authorize_access!, only: [:show]
+    before_action :authorize_owner!, only: [:update]
 
     # GET /cases
     def index
@@ -77,13 +79,17 @@ class Api::V1::CasesController < ApplicationController
         @case = Case.find(params[:id])
     end
 
+    def case_params
+        params.require(:case).permit(:title, :description, :court, :start_date, :end_date, :lawyer_id, :client_name, :case_number)
+    end
+
     def authorize_access!
         return if current_user.admin? || @case.collaborators.exists?(@current_user.id) || @case.lawyer == @current_user
 
         render json: { error: 'Forbidden' }, status: :forbidden
     end
 
-    def case_params
-        params.require(:case).permit(:title, :description, :court, :start_date, :end_date, :lawyer_id, :client_name, :case_number)
+    def authorize_owner!
+        render json: { error: 'Forbidden' }, status: :forbidden unless @current_user.id == @case.lawyer_id
     end
 end

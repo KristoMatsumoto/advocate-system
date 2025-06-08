@@ -1,21 +1,18 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from "react-router-dom";
 import { Box, Typography, Table, TableBody, TableCell, TableHead, TableRow, Paper, Select, MenuItem, Button } from '@mui/material';
 import api from '../api/axios';
-import { AuthContext } from "../context/AuthContext";
 import Loader from '../components/Loader';
+import Forbidden from "./Forbidden";
 
 export default function CollaborationsPage() {
-    const { user } = useContext(AuthContext);
-    if (user.role != 'admin') return <Forbidden />
-    // изменить условие, чтобы могли заходить админы и владельцы
-
     const caseId = useParams().id;
     const [collaborators, setCollaborators] = useState([]);
     const [availableUsers, setAvailableUsers] = useState([]);
     const [error, setError] = useState(null);
     const [updateError, setUpdateError] = useState(null);
     const [success, setSuccess] = useState(null);
+    const [forbidden, setForbidden] = useState(null);
     const [selected, setSelected] = useState([]);
     const [loading, setLoading] = useState(true);
     const [owner, setOwner] = useState({}); 
@@ -29,10 +26,16 @@ export default function CollaborationsPage() {
                 setCollaborators(res.data.collaborators);
                 setError(null);
             })
-            .catch((err) => setError('Error loading data'));
+            .catch((err) => {
+                if (err.response?.status === 403) setForbidden(true);
+                else setError('Error loading data');
+            });
         api.get(`/cases/${caseId}/collaboration/available_users`)
             .then((res) => { setAvailableUsers(res.data.available_users); })
-            .catch((err) => setError('Error loading data'))
+            .catch((err) => {
+                if (err.response?.status === 403) setForbidden(true);
+                else setError('Error loading data');
+            })
             .finally(() => setLoading(false));
     }
     useEffect(() => fetchCollaborators(), [caseId]);
@@ -48,6 +51,7 @@ export default function CollaborationsPage() {
         .catch((err) => { setUpdateError('Such get wrong.'); setSuccess(null); })
     };
 
+    if (forbidden) return <Forbidden />;
     if (loading) return <Loader />;
     if (error) return <Typography color="error">{error}</Typography>
 
@@ -77,13 +81,13 @@ export default function CollaborationsPage() {
                             <TableCell>Owner</TableCell>
                         </TableRow>
                         {collaborators.map(user => (
-                            <TableRow key={user.user.id} sx={user.user.id === owner?.id ? { backgroundColor: '#f5f5f5' } : {}}>
-                                <TableCell>{user.user.surname}</TableCell>
-                                <TableCell>{user.user.name} {user.user.second_name}</TableCell>
-                                <TableCell>{user.user.email}</TableCell>
-                                <TableCell>{user.user.role}</TableCell>
+                            <TableRow key={user.id} sx={user.id === owner?.id ? { backgroundColor: '#f5f5f5' } : {}}>
+                                <TableCell>{user.surname}</TableCell>
+                                <TableCell>{user.name} {user.second_name}</TableCell>
+                                <TableCell>{user.email}</TableCell>
+                                <TableCell>{user.role}</TableCell>
                                 <TableCell>
-                                    <Button color="error" onClick={() => handleRemove(user.user.id)}>Remove</Button>
+                                    <Button color="error" onClick={() => handleRemove(user.id)}>Remove</Button>
                                 </TableCell>
                             </TableRow>
                         ))}

@@ -1,19 +1,18 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useEffect, useState, useContext } from "react";
-import { Button, Modal} from "@mui/material";
+import { Box, Button, Modal, Stack, Typography } from "@mui/material";
 import api from "../api/axios";
-import { CaseContext } from '../context/CaseContext'
 import { AuthContext } from "../context/AuthContext";
+import ViewField from "../components/ViewField";
 import Loader from "../components/Loader";
 import CaseFormEdit from "../components/CaseFormEdit";
+import CollaborationsForm from "../components/CollaborationsForm";
 import MediaUploadForm from "../components/MediaUploadForm";
 import MediaList from "../components/MediaList";
 import Forbidden from "./Forbidden";
 
 export default function CasePage() {
-    // const { caseData, loading, error } = useContext(CaseContext);
     const { user } = useContext(AuthContext);
-
     const id = useParams().id;
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -21,14 +20,14 @@ export default function CasePage() {
     const [forbidden, setForbidden] = useState(null);
     const [mediaDialogOpen, setMediaDialogOpen] = useState(false);
     const [mediaList, setMediaList] = useState([]);
-    const navigate = useNavigate();
+    const [editMode, setEditMode] = useState(false);
 
     const handleNewMedia = (newMedia) => {
         setMediaList((prev) => [...prev, newMedia]);
     };
 
-    useEffect(() => { if (user.role === "admin") navigate("/collaborations") }, [user]);
     useEffect(() => {
+        setLoading(true);
         api.get(`/cases/${id}`)
             .then((res) => { setData(res.data); setMediaList(res.data.media); })
             .catch((err) => {
@@ -45,22 +44,41 @@ export default function CasePage() {
 
     return (
         <>
-            {/* <h2>{data.title}</h2>
-            <p><strong>Number:</strong> {data.case_number}</p>
-            <p><strong>Client:</strong> {data.client_name}</p>
-            <p><strong>Start:</strong> {data.start_date}</p>
-            <p><strong>End:</strong> {data.end_date || "—"}</p>
-            <p><strong>Court:</strong> {data.court}</p>
-            <p><strong>Description:</strong> {data.description}</p>
-            */}
-
-            {/* Общую информацию по делу может редактировать только владелец, в том числе коллабораторов */}
             {/* Добавить подписи к данным (медиа, заметки), кто их добавил */}
-            <CaseFormEdit caseData={data} onSuccess={() => navigate('/cases')} />
             
-            <Button onClick={() => setMediaDialogOpen(true)} variant="outlined">
-                New media
-            </Button>
+            <Box sx={{ maxWidth: 600, mx: "auto", mt: 4 }}>
+                {editMode ? (
+                    <CaseFormEdit caseData={data} onSuccess={(updated) => { setData(updated); setEditMode(false); }} />
+                ) : (
+                    <Stack spacing={2}>
+                        <Typography variant="h6">Case Information</Typography>
+                        <ViewField label="Title" value={data.title} />
+                        <ViewField label="Lawyer" value={`${data.lawyer.name} ${data.lawyer.surname} (${data.lawyer.email})`} />
+                        <ViewField label="Case Number" value={data.case_number} />
+                        <ViewField label="Client Name" value={data.client_name} />
+                        <ViewField label="Court" value={data.court} />
+                        <ViewField label="Start Date" value={data.start_date} />
+                        <ViewField label="End Date" value={data.end_date || "—"} />
+                        <ViewField label="Description" value={data.description || "—"} />
+                    </Stack>
+                )}
+                {(user.id === data.lawyer.id) && (
+                    <Stack spacing={2} sx={{ mt: 2, mb: 2 }}>
+                        <Button onClick={() => setEditMode(!editMode)} variant="outlined">
+                            {editMode ? "Cancel" : "Edit Case"}
+                        </Button>
+                    </Stack>
+                )}
+                
+                <CollaborationsForm caseData={data}/>
+            </Box>
+            
+            <Box className="container" sx={{ py: 4, mr: 5, ml: 5 }}>
+                <Button onClick={() => setMediaDialogOpen(true)} variant="outlined">
+                    New media
+                </Button>
+            </Box>
+            
 
             <MediaList mediaList={mediaList} setMediaList={setMediaList} />
             
