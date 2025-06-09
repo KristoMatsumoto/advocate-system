@@ -18,6 +18,7 @@ class Api::V1::UsersController < ApplicationController
                 )
             end
         end
+        users = users.distinct
         
         users = users.where(role: params[:role]) if params[:role].present?
 

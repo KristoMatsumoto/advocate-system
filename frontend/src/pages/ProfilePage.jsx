@@ -124,7 +124,7 @@ export default function ProfilePage() {
             {errorPassword && <Typography color="error.main" mt={2}>{errorPassword}</Typography>}
 
             <Paper sx={{ p: 3 }}>
-                <Box component="form" onSubmit={passwordFormik.handleSubmit}>{/*noValidate*/}
+                <Box component="form" onSubmit={passwordFormik.handleSubmit}>
                     <Stack spacing={2}>
                         <Typography variant="h6">Change Password</Typography>
 

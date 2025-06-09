@@ -1,7 +1,7 @@
 import MediaItem from "./MediaItem";
 import { Typography, Paper } from "@mui/material";
 
-export default function MediaList({ mediaList, setMediaList }) {
+export default function MediaList({ mediaList, setMediaList, caseId }) {
     const handleUpdate = (updatedMedia) => {
         setMediaList((prev) =>
             prev.map((item) => (item.id === updatedMedia.id ? updatedMedia : item))
@@ -20,6 +20,7 @@ export default function MediaList({ mediaList, setMediaList }) {
                     item={media}
                     onUpdate={handleUpdate}
                     onDelete={handleDelete}
+                    caseId={caseId}
                 />
             ))}
         </>

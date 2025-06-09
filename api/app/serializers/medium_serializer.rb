@@ -1,6 +1,8 @@
 class MediumSerializer < ActiveModel::Serializer
     attributes :id, :title, :description, :attachments, :user
     
+    has_many :media, serializer: MediumSerializer
+
     def attachments
         object.files.map do |file| {
             id: file.id,
@@ -18,5 +20,9 @@ class MediumSerializer < ActiveModel::Serializer
             name: u.name,
             surname: u.surname,
         } if u
+    end
+
+    def media
+        object.media.where(mediable_type: "Medium", mediable_id: object.id)
     end
 end

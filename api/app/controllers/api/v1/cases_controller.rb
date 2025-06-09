@@ -17,11 +17,12 @@ class Api::V1::CasesController < ApplicationController
             terms = params[:search].downcase.split(" ")
             terms.each do |term|
                 cases = cases.where(
-                    "LOWER(title) LIKE :term OR LOWER(description) LIKE :term",
+                    "LOWER(title) LIKE :term OR LOWER(description) LIKE :term OR LOWER(case_number) LIKE :term",
                     term: "%#{term}%"
                 )
             end
         end
+        cases = cases.distinct
 
         sort_column = params[:sort] || "created_at"
         sort_dir = params[:direction] == "asc" ? :asc : :desc

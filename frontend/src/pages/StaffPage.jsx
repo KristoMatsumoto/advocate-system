@@ -85,7 +85,7 @@ export default function StaffPage() {
                     <TextField
                         fullWidth
                         id="search-field"
-                        label="Search by name or email"
+                        label="Search by surname or name"
                         inputRef={searchRef}
                         value={search}
                         onChange={e => setSearch(e.target.value)}

@@ -56,8 +56,8 @@ export default function CasePage() {
                         <ViewField label="Client Name" value={data.client_name} />
                         <ViewField label="Court" value={data.court} />
                         <ViewField label="Start Date" value={data.start_date} />
-                        <ViewField label="End Date" value={data.end_date || "—"} />
-                        <ViewField label="Description" value={data.description || "—"} />
+                        <ViewField label="End Date" value={data.end_date || "-"} />
+                        <ViewField label="Description" value={data.description || "-"} />
                     </Stack>
                 )}
                 {(user.id === data.lawyer.id) && (
@@ -89,7 +89,7 @@ export default function CasePage() {
                 </Box>
             )}
 
-            <MediaList mediaList={mediaList} setMediaList={setMediaList} />
+            <MediaList mediaList={mediaList} setMediaList={setMediaList} caseId={data.id} />
         </>
     );
 }

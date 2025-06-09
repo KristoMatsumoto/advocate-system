@@ -144,7 +144,6 @@ export default function CaseForm({ onCreate, onClose }) {
                         </Grid>
                     </Grid>
                     
-                    {/* Добавить лоад юзеров */}
                     {user.role === 'admin' && (
                         <FormControl fullWidth>
                             <InputLabel>Assign to lawyer</InputLabel>
@@ -165,25 +164,6 @@ export default function CaseForm({ onCreate, onClose }) {
                             </Select>
                         </FormControl>
                     )}
-
-                    {/* <Button
-                        variant="outlined"
-                        component="label"
-                        startIcon={<UploadFileIcon />}
-                    >
-                        Загрузить PDF
-                        <input
-                            type="file"
-                            accept=".pdf"
-                            hidden
-                            onChange={e => formik.setFieldValue('file', e.currentTarget.files[0])}
-                        />
-                    </Button>
-                    {formik.values.file && (
-                        <Typography variant="body2" color="text.secondary">
-                            📎 {formik.values.file.name}
-                        </Typography>
-                    )} */}
 
                     <Button type="submit" variant="contained" color="success">
                         Create

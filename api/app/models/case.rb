@@ -14,7 +14,7 @@ class Case < ApplicationRecord
 
   def end_date_after_start_date
     if end_date.present? && start_date.present? && end_date < start_date
-      errors.add(:end_date, "nie może być wcześniejsza niż data rozpoczęcia")
+      errors.add(:end_date, "cannot be earlier than the start date")
     end
   end
 end

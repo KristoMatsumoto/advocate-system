@@ -2,7 +2,7 @@ class Api::V1::MediaController < ApplicationController
     include ApiAuthentication
 
     before_action :authenticate_api_user!
-    before_action :authorize_collaboration!, only: [:create]
+    before_action :authorize_collaboration_or_owner!, only: [:create]
     before_action :set_parent, only: [:create]
     before_action :set_medium, only: [:show, :update, :destroy]
     before_action :authorize_author!, only: [:update, :destroy]
@@ -73,8 +73,9 @@ class Api::V1::MediaController < ApplicationController
         render json: { error: "Forbidden" }, status: :forbidden unless @medium.user == @current_user
     end
 
-    def authorize_collaboration!
+    def authorize_collaboration_or_owner!
         return if Collaboration.exists?(case_id: params[:case_id], user_id: @current_user.id)
+        return if Case.find(params[:case_id]).lawyer = @current_user
 
         render json: { error: "Forbidden" }, status: :forbidden
     end
