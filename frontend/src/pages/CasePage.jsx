@@ -1,14 +1,14 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState, useContext } from "react";
-import { Box, Button, Modal, Stack, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext";
 import ViewField from "../components/ViewField";
 import Loader from "../components/Loader";
 import CaseFormEdit from "../components/CaseFormEdit";
 import CollaborationsForm from "../components/CollaborationsForm";
-import MediaUploadForm from "../components/MediaUploadForm";
 import MediaList from "../components/MediaList";
+import MediaItem from "../components/MediaItem";
 import Forbidden from "./Forbidden";
 
 export default function CasePage() {
@@ -77,16 +77,19 @@ export default function CasePage() {
                 </Button>
             </Box>
             
+            {mediaDialogOpen && (
+                <Box sx={{ mx: "auto" }}>
+                    <MediaItem
+                        isNew
+                        caseId={data.id}
+                        item={{ attachments: [] }}
+                        onUpdate={handleNewMedia}
+                        onClose={() => setMediaDialogOpen(false)}
+                    />
+                </Box>
+            )}
 
             <MediaList mediaList={mediaList} setMediaList={setMediaList} />
-            
-            <Modal open={mediaDialogOpen} onClose={() => setMediaDialogOpen(false)}>
-                <MediaUploadForm
-                    caseId={data.id}
-                    onUpload={handleNewMedia}
-                    onClose={() => setMediaDialogOpen(false)}
-                />
-            </Modal>
         </>
     );
 }

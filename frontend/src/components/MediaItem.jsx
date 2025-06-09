@@ -11,15 +11,66 @@ import { AuthContext } from "../context/AuthContext";
 import * as Yup from "yup";
 import RenderFile from "./RenderFile";
 
-export default function MediaItem({ item, onUpdate, onDelete }) {
+export default function MediaItem({ item, onUpdate, onDelete, isNew = false, caseId, onClose }) {
     const { user } = useContext(AuthContext);
-    const [editing, setEditing] = useState(false);
+    const [editing, setEditing] = useState(isNew);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
     const [removedFiles, setRemovedFiles] = useState([]);
     const [newFiles, setNewFiles] = useState([]);
     const [previewFiles, setPreviewFiles] = useState([]);
 
+    const validate = (values) => {
+        const errors = {};
+
+        const isEmptyTitle = !values.title?.trim();
+        const isEmptyDescription = !values.description?.trim();
+        const noFiles = !values.files || values.files.length === 0;
+
+        if (isEmptyTitle && isEmptyDescription && noFiles) 
+            errors._form = "Enter the title, description or select at least one file";
+
+        return errors;
+    };
+
+    const submitCreate = (values) => {
+        const formData = new FormData();
+        formData.append("media[title]", values.title);
+        formData.append("media[description]", values.description || "");
+
+        newFiles.forEach((file) => formData.append("media[files][]", file));
+
+        api.post(`/cases/${caseId}/media`, formData, { headers: { "Content-Type": "multipart/form-data" } }) 
+            .then((res) => {
+                onUpdate(res.data);
+                onClose(); // Закрываем диалог после создания
+                resetFormState();
+            })
+            .catch(() => setError("Failed to save changes"));
+    }
+
+    const submitUpdate = (values) => {
+        const formData = new FormData();
+        formData.append("media[title]", values.title);
+        formData.append("media[description]", values.description || "");
+        
+        item.attachments
+            .filter(a => !removedFiles.includes(a.id))
+            .forEach(a => {
+                if (a.signed_id)  formData.append("media[files][]", a.signed_id);
+            });
+        newFiles.forEach((file) => { formData.append("media[files][]", file); });
+        
+        api.patch(`/media/${item.id}`, formData, { headers: { "Content-Type": "multipart/form-data" } })
+        .then((res) => { 
+            onUpdate(res.data); 
+            setEditing(false); 
+            setRemovedFiles([]); 
+            setNewFiles([]);
+            setPreviewFiles([]);
+            setError(null); })
+        .catch((err) => setError("Failed to save changes"));
+    }
     const formik = useFormik({
         initialValues: {
             title: item.title || "",
@@ -27,31 +78,11 @@ export default function MediaItem({ item, onUpdate, onDelete }) {
             files: []
         },
         validationSchema: Yup.object({
-            title: Yup.string().required("Title is required"),
+            title: Yup.string(),
             description: Yup.string()
         }),
-        onSubmit: (values) => {
-            const formData = new FormData();
-            formData.append("media[title]", values.title);
-            formData.append("media[description]", values.description || "");
-            
-            item.attachments
-                .filter(a => !removedFiles.includes(a.id))
-                .forEach(a => {
-                    if (a.signed_id)  formData.append("media[files][]", a.signed_id);
-                });
-            newFiles.forEach((file) => { formData.append("media[files][]", file); });
-            
-            api.patch(`/media/${item.id}`, formData, { headers: { "Content-Type": "multipart/form-data" } })
-            .then((res) => { 
-                onUpdate(res.data); 
-                setEditing(false); 
-                setRemovedFiles([]); 
-                setNewFiles([]);
-                setPreviewFiles([]);
-                setError(null); })
-            .catch((err) => setError("Failed to save changes"));
-        }
+        validate,
+        onSubmit: (values) => { isNew? submitCreate(values) : submitUpdate(values) }
     });
 
     const handleDelete = () => {
@@ -153,9 +184,9 @@ export default function MediaItem({ item, onUpdate, onDelete }) {
                             {error && <Typography color="error">{error}</Typography>}
 
                             <Stack direction="row" spacing={2}>
-                                <Button type="submit" variant="contained" startIcon={<SaveIcon />}>Save</Button>
-                                <Button onClick={() => { setEditing(false); setRemovedFiles([]); }} startIcon={<CloseIcon />}>Cancel</Button>
-                                <Button onClick={handleDelete} color="error" variant="outlined" startIcon={<DeleteIcon />}>Delete</Button>
+                                <Button onClick={() => { setEditing(false); setRemovedFiles([]); if (isNew) onClose(); }} startIcon={<CloseIcon />}>Cancel</Button>
+                                {!isNew && <Button onClick={handleDelete} color="error" variant="outlined" startIcon={<DeleteIcon />}>Delete</Button>}
+                                <Button type="submit" variant="contained" startIcon={<SaveIcon />}>{"Save"}</Button>
                             </Stack>
                         </Stack>
                     </form>
@@ -173,7 +204,10 @@ export default function MediaItem({ item, onUpdate, onDelete }) {
                                 <Typography variant="h6">{item.title}</Typography>
                                 <Typography variant="body2">{item.description || "No description"}</Typography>
                             </Box>
-                            {user.id === item.user.id && <IconButton onClick={() => setEditing(true)}><EditIcon /></IconButton>}
+                            <Box>
+                                {user.id === item.user.id && <IconButton onClick={() => setEditing(true)}><EditIcon /></IconButton>}
+                                <IconButton onClick={() => {}}><AddCommentIcon /></IconButton>
+                            </Box>
                         </Stack>
 
                         <Box mt={2}>

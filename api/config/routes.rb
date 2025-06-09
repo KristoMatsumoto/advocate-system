@@ -4,10 +4,10 @@ Rails.application.routes.draw do
       resources :cases do
         resource :collaboration, only: [:show, :create, :destroy, :update]
         get "/collaboration/available_users", to: "collaborations#available"
+        
         resources :media, only: [:create]
-        # resources :notes, only: [:create]
+        post "/media/:medium_id", to: "media#create"
       end
-      resources :notes, only: [:show, :update, :destroy]
       resources :media, only: [:show, :update, :destroy]
       
       resources :users, only: [:create, :index, :update]
