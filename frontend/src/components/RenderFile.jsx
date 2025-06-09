@@ -1,8 +1,11 @@
-import { Box, Typography, Grid, IconButton, ImageListItem } from "@mui/material";
+import { useState } from "react";
+import FileViewer from "react-file-viewer";
+import { Box, Typography, Grid, IconButton, ImageListItem, Modal } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
 import ClearIcon from "@mui/icons-material/Clear";
 
-export default function RenderFile({ file, editing, onRemove, onPreview }) {
+export default function RenderFile({ file, editing, onRemove }) {
+    const [fileToView, setFileToView] = useState(null);
     const ext = file.name?.split(".").pop()?.toLowerCase() || "";
     const isImage = /^image\/(jpeg|png|gif|bmp|webp|svg\+xml)$/.test(file.content_type || "");
 
@@ -12,12 +15,19 @@ export default function RenderFile({ file, editing, onRemove, onPreview }) {
             : `http://${import.meta.env.VITE_API_HOST}:${import.meta.env.VITE_API_PORT}${file.url}`;
     };
 
+    const handlePreview = () => {
+        setFileToView({
+            fileType: ext,
+            filePath: getFileSrc(file),
+        });
+    };
+
     return (
         <Grid>
             <Box>
                 <Box display={!isImage ? "flex" : null} mt={1}>
                     {isImage ? (
-                        <ImageListItem sx={{ m: 1, py: 0.5 }}>
+                        <ImageListItem sx={{ m: 1, py: 0.5 }} onClick={handlePreview} style={{ cursor: "pointer" }}>
                             <img
                                 src={getFileSrc(file)}
                                 alt={file.name}
@@ -25,19 +35,12 @@ export default function RenderFile({ file, editing, onRemove, onPreview }) {
                             />
                         </ImageListItem>
                     ) : (
-                        <Typography sx={{ mb: 1, py: 0.5, px: 1 }}>
-                            <a
-                                href={file.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{ cursor: "pointer" }}
-                            >
-                                {file.name || `File (${ext})`}
-                            </a>
+                        <Typography sx={{ mb: 1, py: 0.5, px: 1 }} onClick={handlePreview} style={{ cursor: "pointer" }}>
+                            <a>{file.name || `File (${ext})`}</a>
                         </Typography>
                     )}
-                
-                    <IconButton href={file.url} download target="_blank">
+
+                    <IconButton href={getFileSrc(file)} download target="_blank">
                         <DownloadIcon />
                     </IconButton>
 
@@ -48,6 +51,18 @@ export default function RenderFile({ file, editing, onRemove, onPreview }) {
                     )}
                 </Box>
             </Box>
+
+            <Modal open={!!fileToView} onClose={() => setFileToView(null)}>
+                <Box sx={{ width: "80vw", height: "80vh", margin: "auto", mt: "10vh", bgcolor: "white", p: 2 }}>
+                    {fileToView && (
+                        <FileViewer
+                            fileType={fileToView.fileType}
+                            filePath={fileToView.filePath}
+                            onError={(e) => console.error("Viewer error:", e)}
+                        />
+                    )}
+                </Box>
+            </Modal>
         </Grid>
     );
 }

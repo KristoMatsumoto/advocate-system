@@ -1,21 +1,22 @@
-import { useState } from "react";
-import FileViewer from "react-file-viewer";
+import { useState, useContext } from "react";
 import { Box, Button, Card, CardContent, Typography, TextField, Grid, Stack, IconButton, ImageListItem, Modal } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import CloseIcon from "@mui/icons-material/Close";
+import AddCommentIcon from '@mui/icons-material/AddComment';
 import api from "../api/axios";
 import { useFormik } from "formik";
+import { AuthContext } from "../context/AuthContext";
 import * as Yup from "yup";
 import RenderFile from "./RenderFile";
 
 export default function MediaItem({ item, onUpdate, onDelete }) {
+    const { user } = useContext(AuthContext);
     const [editing, setEditing] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
     const [removedFiles, setRemovedFiles] = useState([]);
-    const [fileToView, setFileToView] = useState(null);
     const [newFiles, setNewFiles] = useState([]);
     const [previewFiles, setPreviewFiles] = useState([]);
 
@@ -30,35 +31,26 @@ export default function MediaItem({ item, onUpdate, onDelete }) {
             description: Yup.string()
         }),
         onSubmit: (values) => {
-            // // values.removed_attachment_ids = [removedFiles]
-            // // values.files = [ ...item.attachments.filter(a => !removedFiles.includes(a.id)), ...newFiles]
-            // const formData = new FormData();
-            // formData.append("media[title]", values.title);
-            // formData.append("media[description]", values.description || "");
+            const formData = new FormData();
+            formData.append("media[title]", values.title);
+            formData.append("media[description]", values.description || "");
             
-            // removedFiles.forEach((id) => { formData.append("media[removed_attachment_ids][]", id); });
-            // // newFiles.forEach((file) => { formData.append("media[files][]", file); });
-            // for (let file of newFiles) {
-            //     formData.append("media[files][]", file);
-            // }
-            // // item.attachments
-            // //     .filter(a => !removedFiles.includes(a.id))
-            // //     .forEach(a => formData.append("media[files][]", a));
+            item.attachments
+                .filter(a => !removedFiles.includes(a.id))
+                .forEach(a => {
+                    if (a.signed_id)  formData.append("media[files][]", a.signed_id);
+                });
+            newFiles.forEach((file) => { formData.append("media[files][]", file); });
             
-            // //     // Отладка: выведем содержимое FormData в консоль
-            // // for (let pair of formData.entries()) {
-            // //     console.log(pair[0], pair[1]);
-            // // }
-            
-            // api.put(`/media/${item.id}`, { media: { ...values, removed_attachment_ids: removedFiles } }, { headers: { "Content-Type": "multipart/form-data" } })
-            // .then((res) => { 
-            //     onUpdate(res.data); 
-            //     setEditing(false); 
-            //     setRemovedFiles([]); 
-            //     setNewFiles([]);
-            //     setPreviewFiles([]);
-            //     setError(null); })
-            // .catch((err) => setError("Failed to save changes"));
+            api.patch(`/media/${item.id}`, formData, { headers: { "Content-Type": "multipart/form-data" } })
+            .then((res) => { 
+                onUpdate(res.data); 
+                setEditing(false); 
+                setRemovedFiles([]); 
+                setNewFiles([]);
+                setPreviewFiles([]);
+                setError(null); })
+            .catch((err) => setError("Failed to save changes"));
         }
     });
 
@@ -142,7 +134,6 @@ export default function MediaItem({ item, onUpdate, onDelete }) {
                                                 file={file}
                                                 editing={true}
                                                 onRemove={() => handleRemoveNewFile(index)}
-                                                onPreview={() => setFileToView({ fileType: ext, filePath: fullUrl })}
                                             />
                                         </Grid>
                                     ))}
@@ -153,7 +144,6 @@ export default function MediaItem({ item, onUpdate, onDelete }) {
                                                 file={file} 
                                                 editing={editing} 
                                                 onRemove={() => { toggleRemoveFile(file.id) }}
-                                                onPreview={() => setFileToView({ fileType: ext, filePath: fullUrl })}
                                             /> 
                                         })}</Grid>
                                     )}
@@ -183,7 +173,7 @@ export default function MediaItem({ item, onUpdate, onDelete }) {
                                 <Typography variant="h6">{item.title}</Typography>
                                 <Typography variant="body2">{item.description || "No description"}</Typography>
                             </Box>
-                            <IconButton onClick={() => setEditing(true)}><EditIcon /></IconButton>
+                            {user.id === item.user.id && <IconButton onClick={() => setEditing(true)}><EditIcon /></IconButton>}
                         </Stack>
 
                         <Box mt={2}>
@@ -194,26 +184,13 @@ export default function MediaItem({ item, onUpdate, onDelete }) {
                                         file={file} 
                                         editing={editing} 
                                         onRemove={() => { return }}
-                                        onPreview={() => setFileToView({ fileType: ext, filePath: fullUrl })}
                                     />
                                 })}
                             </Grid>
                         </Box>
                     </>
                 )}
-            </CardContent>
-
-            {/* <Modal open={!!fileToView} onClose={() => setFileToView(null)}>
-                <Box sx={{ width: "80vw", height: "80vh", margin: "auto", mt: "10vh", bgcolor: "white", p: 2 }}>
-                    {fileToView && (
-                        <FileViewer
-                            fileType={fileToView.fileType}
-                            filePath={fileToView.filePath}
-                            onError={(e) => console.error("Viewer error:", e)}
-                        />
-                    )}
-                </Box>
-            </Modal> */}
+            </CardContent>            
         </Card>
     );
 }

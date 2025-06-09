@@ -4,6 +4,7 @@ class Api::V1::MediaController < ApplicationController
     before_action :authenticate_api_user!
     before_action :set_case, only: [:create]
     before_action :set_medium, only: [:show, :update, :destroy]
+    before_action :authorize_author!, :only: [:update, :destroy]
 
     # POST /media
     def create
@@ -31,7 +32,6 @@ class Api::V1::MediaController < ApplicationController
     # PATCH/PUT /media/:id 
     def update
         if @medium.update(media_params)
-            remove_attachments if params[:media][:removed_attachment_ids].present?
             render json: @medium, status: :ok
         else
             render json: { errors: @medium.errors.full_messages }, status: :unprocessable_entity
@@ -62,9 +62,7 @@ class Api::V1::MediaController < ApplicationController
         params.require(:media).permit(:title, :description, files: [])
     end
 
-    def remove_attachments
-        attachment_ids = params[:media][:removed_attachment_ids].to_unsafe_h.values.map(&:to_i)
-        attachments = @medium.files.where(id: attachment_ids)
-        attachments.each(&:purge)
+    def authorize_author!
+        render json: { error: "Forbidden" }, status: :forbidden unless @medium.user == @current_user
     end
 end

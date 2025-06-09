@@ -68,7 +68,7 @@ export default function CasePage() {
                     </Stack>
                 )}
                 
-                <CollaborationsForm caseData={data}/>
+                {(user.id === data.lawyer.id || user.role === "admin") && (<CollaborationsForm caseData={data}/>)}
             </Box>
             
             <Box className="container" sx={{ py: 4, mx: 5 }}>
